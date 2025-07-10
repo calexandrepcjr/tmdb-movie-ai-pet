@@ -385,11 +385,11 @@ export class ViewFormatter {
     });
 
     results.results.forEach((result) => {
-      const type = this.getMediaTypeIcon(result.mediaType);
-      const title = result.title || result.name || 'N/A';
-      const date = result.releaseDate || result.firstAirDate || 'N/A';
-      const rating = result.voteAverage ? `⭐ ${result.voteAverage.toFixed(1)}` : 'N/A';
-      const overview = this.truncateText(result.overview || '', 80);
+      const type = this.getMediaTypeIcon(result instanceof Movie ? 'movie' : result instanceof TvShow ? 'tv' : 'person');
+      const title = (result instanceof Movie ? result.title : result instanceof TvShow ? result.name : result.name) || 'N/A';
+      const date = (result instanceof Movie ? result.getReleaseYear() : result instanceof TvShow ? result.getFirstAirYear() : 'N/A');
+      const rating = (result instanceof Movie || result instanceof TvShow) ? `⭐ ${result.getFormattedVoteAverage()}` : 'N/A';
+      const overview = this.truncateText((result as Movie | TvShow).overview || '', 80);
 
       table.push([type, result.id, title, date, rating, overview]);
     });
@@ -417,10 +417,10 @@ export class ViewFormatter {
     });
 
     results.results.forEach((result) => {
-      const type = this.getMediaTypeIcon(result.mediaType);
-      const title = result.title || result.name || 'N/A';
-      const date = result.releaseDate || result.firstAirDate || 'N/A';
-      const rating = result.voteAverage ? `⭐ ${result.voteAverage.toFixed(1)}` : 'N/A';
+      const type = this.getMediaTypeIcon(result instanceof Movie ? 'movie' : result instanceof TvShow ? 'tv' : 'person');
+      const title = (result instanceof Movie ? result.title : result instanceof TvShow ? result.name : result.name) || 'N/A';
+      const date = (result instanceof Movie ? result.getReleaseYear() : result instanceof TvShow ? result.getFirstAirYear() : 'N/A');
+      const rating = (result instanceof Movie || result instanceof TvShow) ? `⭐ ${result.getFormattedVoteAverage()}` : 'N/A';
       const popularity = result.popularity.toFixed(1);
 
       table.push([type, result.id, title, date, rating, popularity]);

@@ -1,3 +1,7 @@
+import { Movie } from './movie';
+import { TvShow } from './tvShow';
+import { Person } from './person';
+
 export interface SearchResult<T> {
   page: number;
   results: T[];
@@ -5,80 +9,36 @@ export interface SearchResult<T> {
   totalResults: number;
 }
 
-export interface MultiSearchResult {
-  id: number;
-  mediaType: 'movie' | 'tv' | 'person';
-  popularity: number;
-  adult: boolean;
-  // Movie specific fields
-  title?: string;
-  originalTitle?: string;
-  releaseDate?: string;
-  video?: boolean;
-  // TV specific fields
-  name?: string;
-  originalName?: string;
-  firstAirDate?: string;
-  originCountry?: string[];
-  // Person specific fields
-  knownForDepartment?: string;
-  knownFor?: Array<{
-    id: number;
-    mediaType: 'movie' | 'tv';
-    title?: string;
-    name?: string;
-    originalTitle?: string;
-    originalName?: string;
-    overview: string;
-    posterPath: string | null;
-    backdropPath: string | null;
-    genreIds: number[];
-    popularity: number;
-    voteAverage: number;
-    voteCount: number;
-    adult: boolean;
-    originalLanguage: string;
-    releaseDate?: string;
-    firstAirDate?: string;
-    video?: boolean;
-    originCountry?: string[];
-  }>;
-  // Common fields
-  overview?: string;
-  posterPath?: string | null;
-  backdropPath?: string | null;
-  profilePath?: string | null;
-  genreIds?: number[];
-  voteAverage?: number;
-  voteCount?: number;
-  originalLanguage?: string;
+export type MultiSearchResult = Movie | TvShow | Person;
+
+export type TrendingResult = Movie | TvShow | Person;
+
+export class MultiResultFactory {
+  public static create(data: any): MultiSearchResult {
+    switch (data.media_type) {
+      case 'movie':
+        return Movie.create(data);
+      case 'tv':
+        return TvShow.create(data);
+      case 'person':
+        return Person.create(data);
+      default:
+        throw new Error(`Unknown media type: ${data.media_type}`);
+    }
+  }
 }
 
-export interface TrendingResult {
-  id: number;
-  mediaType: 'movie' | 'tv' | 'person';
-  popularity: number;
-  adult: boolean;
-  // Movie specific fields
-  title?: string;
-  originalTitle?: string;
-  releaseDate?: string;
-  video?: boolean;
-  // TV specific fields
-  name?: string;
-  originalName?: string;
-  firstAirDate?: string;
-  originCountry?: string[];
-  // Person specific fields
-  knownForDepartment?: string;
-  knownFor?: Array<any>;
-  // Common fields
-  overview?: string;
-  posterPath?: string | null;
-  backdropPath?: string | null;
-  profilePath?: string | null;
-  genreIds?: number[];
-  voteAverage?: number;
-  voteCount?: number;
-  originalLanguage?: string;
+export class TrendingResultFactory {
+  public static create(data: any): TrendingResult {
+    switch (data.media_type) {
+      case 'movie':
+        return Movie.create(data);
+      case 'tv':
+        return TvShow.create(data);
+      case 'person':
+        return Person.create(data);
+      default:
+        throw new Error(`Unknown media type: ${data.media_type}`);
+    }
+  }
 }

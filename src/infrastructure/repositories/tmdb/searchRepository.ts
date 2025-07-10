@@ -1,5 +1,5 @@
 import { SearchRepository as ISearchRepository } from '../../../domain/repositories/searchRepository';
-import { MultiSearchResult, TrendingResult, SearchResult } from '../../../domain/entities/searchResult';
+import { MultiSearchResult, TrendingResult, SearchResult, MultiResultFactory, TrendingResultFactory } from '../../../domain/entities/searchResult';
 import { SearchFilters, TimeWindow, MediaType } from '../../../domain/value-objects/searchFilters';
 import { HttpClient } from '../../http/tmdb/httpClient';
 
@@ -76,60 +76,6 @@ interface TmdbTrendingResult {
 export class SearchRepository implements ISearchRepository {
   constructor(private httpClient: HttpClient) {}
 
-  private mapTmdbMultiSearchResult(tmdbResult: TmdbMultiSearchResult): MultiSearchResult {
-    return {
-      id: tmdbResult.id,
-      mediaType: tmdbResult.media_type as 'movie' | 'tv' | 'person',
-      adult: tmdbResult.adult || false,
-      backdropPath: tmdbResult.backdrop_path,
-      genreIds: tmdbResult.genre_ids,
-      originalLanguage: tmdbResult.original_language,
-      originalTitle: tmdbResult.original_title,
-      overview: tmdbResult.overview,
-      popularity: tmdbResult.popularity,
-      posterPath: tmdbResult.poster_path,
-      releaseDate: tmdbResult.release_date,
-      title: tmdbResult.title,
-      video: tmdbResult.video,
-      voteAverage: tmdbResult.vote_average,
-      voteCount: tmdbResult.vote_count,
-      originCountry: tmdbResult.origin_country,
-      originalName: tmdbResult.original_name,
-      firstAirDate: tmdbResult.first_air_date,
-      name: tmdbResult.name,
-      knownFor: tmdbResult.known_for,
-      knownForDepartment: tmdbResult.known_for_department,
-      profilePath: tmdbResult.profile_path,
-    };
-  }
-
-  private mapTmdbTrendingResult(tmdbResult: TmdbTrendingResult): TrendingResult {
-    return {
-      id: tmdbResult.id,
-      mediaType: tmdbResult.media_type as 'movie' | 'tv' | 'person',
-      adult: tmdbResult.adult || false,
-      backdropPath: tmdbResult.backdrop_path,
-      genreIds: tmdbResult.genre_ids,
-      originalLanguage: tmdbResult.original_language,
-      originalTitle: tmdbResult.original_title,
-      overview: tmdbResult.overview,
-      popularity: tmdbResult.popularity,
-      posterPath: tmdbResult.poster_path,
-      releaseDate: tmdbResult.release_date,
-      title: tmdbResult.title,
-      video: tmdbResult.video,
-      voteAverage: tmdbResult.vote_average,
-      voteCount: tmdbResult.vote_count,
-      originCountry: tmdbResult.origin_country,
-      originalName: tmdbResult.original_name,
-      firstAirDate: tmdbResult.first_air_date,
-      name: tmdbResult.name,
-      knownFor: tmdbResult.known_for,
-      knownForDepartment: tmdbResult.known_for_department,
-      profilePath: tmdbResult.profile_path,
-    };
-  }
-
   async multiSearch(filters: SearchFilters): Promise<SearchResult<MultiSearchResult>> {
     const params = {
       query: filters.query,
@@ -142,7 +88,7 @@ export class SearchRepository implements ISearchRepository {
     
     return {
       page: tmdbResponse.page,
-      results: tmdbResponse.results.map(result => this.mapTmdbMultiSearchResult(result)),
+      results: tmdbResponse.results.map(result => MultiResultFactory.create(result)),
       totalPages: tmdbResponse.total_pages,
       totalResults: tmdbResponse.total_results,
     };
@@ -157,7 +103,7 @@ export class SearchRepository implements ISearchRepository {
     
     return {
       page: tmdbResponse.page,
-      results: tmdbResponse.results.map(result => this.mapTmdbTrendingResult(result)),
+      results: tmdbResponse.results.map(result => TrendingResultFactory.create(result)),
       totalPages: tmdbResponse.total_pages,
       totalResults: tmdbResponse.total_results,
     };
