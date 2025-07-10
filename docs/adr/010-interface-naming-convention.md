@@ -7,7 +7,7 @@
 The codebase originally used Hungarian notation for interfaces, prefixing them with `I` (e.g., `IConfigService`, `IRepository`). This naming convention is a legacy practice that can reduce code readability and doesn't align with modern TypeScript and JavaScript best practices.
 
 ### Problems with Hungarian Notation
-- **Redundant**: The `interface` keyword already indicates the type is an interface
+- **Redundant**: The `interface` keyword already indicates the type is an interface. For domain entities, we now use classes to encapsulate behavior, making the `I` prefix even more misleading.
 - **Noise**: The `I` prefix adds visual noise without meaningful information
 - **Inconsistency**: Modern TypeScript/JavaScript ecosystems favor descriptive names over type prefixes
 - **Maintenance**: Renaming interfaces requires updating all references and import statements

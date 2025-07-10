@@ -67,7 +67,7 @@ Always include:
 Context: TMDB Movie Client - TypeScript Project
 Architecture: Domain-Driven Design + Clean Architecture
 Layers:
-- Domain: Entities, Value Objects, Repository Interfaces
+- Domain: Rich Entities (classes), Value Objects, Repository Interfaces
 - Application: Use Cases, DTOs, Application Services
 - Infrastructure: Repository Implementations, HTTP Clients, Configuration
 - Presentation: CLI (Node.js) and Browser (React) interfaces
@@ -81,7 +81,7 @@ Key Patterns:
 TypeScript Requirements:
 - Strict type checking enabled
 - Interfaces for all contracts (NO Hungarian notation - use descriptive names like ConfigurationService, not IConfigService)
-- File naming must use PascalCase (e.g., UserService.ts, MovieRepository.ts)
+- File naming must use camelCase (e.g., `userService.ts`, `movieRepository.ts`), except for React components (`.tsx`) which use PascalCase (e.g., `App.tsx`, `MovieCard.tsx`).
 - Proper error handling with custom exceptions
 - JSDoc comments for public APIs
 ```

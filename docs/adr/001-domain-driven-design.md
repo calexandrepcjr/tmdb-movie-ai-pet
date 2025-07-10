@@ -9,7 +9,7 @@ The TMDB Movie Client needs a robust architecture that can handle complex busine
 ## Decision
 We will adopt Domain-Driven Design (DDD) as the primary architectural approach for the TMDB Movie Client. This includes:
 
-- **Domain Layer**: Contains entities, value objects, and business rules
+- **Domain Layer**: Contains rich entities (with behavior), value objects, and business rules
 - **Application Layer**: Contains use cases and application services
 - **Infrastructure Layer**: Contains external dependencies and implementations
 - **Presentation Layer**: Contains UI components and user interaction logic

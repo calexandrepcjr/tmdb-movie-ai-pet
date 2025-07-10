@@ -6,15 +6,15 @@ This directory contains all architectural decisions made for the TMDB Movie Clie
 
 | ADR | Title | Status | Date |
 |-----|-------|--------|------|
-| [ADR-001](./001-domain-driven-design.md) | Adopt Domain-Driven Design Architecture | Accepted | 2025-07-08 |
-| [ADR-002](./002-clean-architecture.md) | Implement Clean Architecture Pattern | Accepted | 2025-07-08 |
-| [ADR-003](./003-typescript-language.md) | Use TypeScript as Primary Language | Accepted | 2025-07-08 |
-| [ADR-004](./004-dependency-injection.md) | Implement Dependency Injection Container | Accepted | 2025-07-08 |
-| [ADR-005](./005-multiple-presentation-layers.md) | Support Multiple Presentation Layers | Accepted | 2025-07-08 |
-| [ADR-006](./006-browser-environment-naming.md) | Adopt Browser-Centric Naming Convention | Accepted | 2025-07-08 |
-| [ADR-007](./007-tmdb-api-authentication.md) | Use Query Parameter Authentication for TMDB API | Accepted | 2025-07-08 |
-| [ADR-008](./008-webpack-build-system.md) | Use Webpack for Browser Build System | Accepted | 2025-07-08 |
-| [ADR-009](./009-environment-configuration.md) | Implement Environment-Specific Configuration | Accepted | 2025-07-08 |
+| [ADR-001](./001-domain-driven-design.md) | Adopt Domain-Driven Design Architecture | Accepted | 2025-07-09 |
+| [ADR-002](./002-clean-architecture.md) | Implement Clean Architecture Pattern | Accepted | 2025-07-09 |
+| [ADR-003](./003-typescript-language.md) | Use TypeScript as Primary Language | Accepted | 2025-07-09 |
+| [ADR-004](./004-dependency-injection.md) | Implement Dependency Injection Container | Accepted | 2025-07-09 |
+| [ADR-005](./005-multiple-presentation-layers.md) | Support Multiple Presentation Layers | Accepted | 2025-07-09 |
+| [ADR-006](./006-browser-environment-naming.md) | Adopt Browser-Centric Naming Convention | Accepted | 2025-07-09 |
+| [ADR-007](./007-tmdb-api-authentication.md) | Use Query Parameter Authentication for TMDB API | Accepted | 2025-07-09 |
+| [ADR-008](./008-webpack-build-system.md) | Use Webpack for Browser Build System | Accepted | 2025-07-09 |
+| [ADR-009](./009-environment-configuration.md) | Implement Environment-Specific Configuration | Accepted | 2025-07-09 |
 
 ## 🔍 ADR Guidelines
 

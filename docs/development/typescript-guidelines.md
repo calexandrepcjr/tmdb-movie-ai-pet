@@ -42,33 +42,35 @@ function processData(data: any): any {
 }
 
 // ✅ Good
-interface ApiResponse {
-  data: MovieData[];
-  total: number;
+import { Movie } from '../../domain/entities/movie';
+
+interface MovieApiResponse {
+  results: Movie[];
+  total_pages: number;
+  total_results: number;
 }
 
-function processData(data: ApiResponse): MovieData[] {
-  return data.data;
+function processMovieApiResponse(data: MovieApiResponse): Movie[] {
+  return data.results;
 }
 ```
 
 ### 3. **Use Union Types for Flexibility**
 ```typescript
 // ✅ Good
-type SearchResult = Movie | TvShow | Person;
-type LoadingState = 'idle' | 'loading' | 'success' | 'error';
+import { Movie } from '../../domain/entities/movie';
+import { TvShow } from '../../domain/entities/tvShow';
+import { Person } from '../../domain/entities/person';
 
-function handleSearchResult(result: SearchResult): void {
-  switch (result.type) {
-    case 'movie':
-      // TypeScript knows result is Movie
-      break;
-    case 'tv':
-      // TypeScript knows result is TvShow
-      break;
-    case 'person':
-      // TypeScript knows result is Person
-      break;
+type SearchResultItem = Movie | TvShow | Person;
+
+function handleSearchResultItem(item: SearchResultItem): void {
+  if (item instanceof Movie) {
+    console.log(`Movie: ${item.title}`);
+  } else if (item instanceof TvShow) {
+    console.log(`TV Show: ${item.name}`);
+  } else if (item instanceof Person) {
+    console.log(`Person: ${item.name}`);
   }
 }
 ```
@@ -92,7 +94,7 @@ class MovieSearchUseCase {
   constructor(private movieRepository: MovieRepository) {}
 }
 
-// Methods and variables: camelCase
+// Methods and properties: camelCase
 const apiKey = 'your-key';
 function searchMovies(query: string): Promise<Movie[]> {}
 
@@ -152,8 +154,9 @@ All TypeScript files must use **camelCase** naming convention:
 ```
 domain/
 ├── entities/
-│   ├── movie.ts              # camelCase for files
-│   └── person.ts
+│   ├── movie.ts              # Rich domain Movie entity
+│   ├── person.ts             # Rich domain Person entity
+│   └── tvShow.ts             # Rich domain TvShow entity
 ├── repositories/
 │   └── movieRepository.ts    # Interface definitions
 └── value-objects/
@@ -163,8 +166,8 @@ domain/
 ### 4. **Import/Export Conventions**
 ```typescript
 // Use explicit imports
-import { Movie } from '../entities/Movie';
-import { SearchRequestDto } from '../dtos/SearchRequestDto';
+import { Movie } from '../entities/movie';
+import { SearchRequestDto } from '../dtos/searchRequestDto';
 
 // Use named exports
 export class MovieSearchUseCase {
@@ -172,9 +175,9 @@ export class MovieSearchUseCase {
 }
 
 // Use default exports sparingly (only for main components)
-export default class CliApplication {
-  // implementation
-}
+// export default class CliApplication {
+//   // implementation
+// }
 ```
 
 ## 🏗️ Architecture-Specific Guidelines
@@ -185,44 +188,61 @@ export default class CliApplication {
 ```typescript
 // ✅ Good: Rich domain model with business logic
 export class Movie {
-  private constructor(
-    private readonly id: number,
-    private readonly title: string,
-    private readonly overview: string,
-    private readonly releaseDate: Date,
-    private readonly voteAverage: number,
-    private readonly posterPath?: string
-  ) {
-    this.validateRating(voteAverage);
-  }
+  protected constructor(
+    public readonly id: number,
+    public readonly title: string,
+    public readonly overview: string,
+    public readonly releaseDate: Date | null,
+    public readonly posterPath: string | null,
+    public readonly backdropPath: string | null,
+    public readonly voteAverage: number,
+    public readonly voteCount: number,
+    public readonly popularity: number,
+    public readonly adult: boolean,
+    public readonly originalLanguage: string,
+    public readonly originalTitle: string,
+    public readonly genreIds: number[]
+  ) {}
 
-  public static create(data: MovieData): Movie {
+  public static create(data: any): Movie {
+    const releaseDate = data.release_date ? new Date(data.release_date.replace(/-/g, '/')) : null;
     return new Movie(
       data.id,
       data.title,
       data.overview,
-      new Date(data.release_date),
+      releaseDate,
+      data.poster_path,
+      data.backdrop_path,
       data.vote_average,
-      data.poster_path
+      data.vote_count,
+      data.popularity,
+      !!data.adult,
+      data.original_language,
+      data.original_title,
+      data.genre_ids || []
     );
   }
 
-  public getId(): number {
-    return this.id;
-  }
-
-  public getTitle(): string {
-    return this.title;
-  }
-
-  public hasHighRating(): boolean {
-    return this.voteAverage >= 7.0;
-  }
-
-  private validateRating(rating: number): void {
-    if (rating < 0 || rating > 10) {
-      throw new DomainError('Rating must be between 0 and 10');
+  public getPosterUrl(size: 'w500' | 'original' = 'w500'): string | null {
+    if (!this.posterPath) {
+      return null;
     }
+    return `https://image.tmdb.org/t/p/${size}${this.posterPath}`;
+  }
+
+  public getBackdropUrl(size: 'w780' | 'original' = 'w780'): string | null {
+    if (!this.backdropPath) {
+      return null;
+    }
+    return `https://image.tmdb.org/t/p/${size}${this.backdropPath}`;
+  }
+
+  public getReleaseYear(): string {
+    return this.releaseDate ? this.releaseDate.getFullYear().toString() : 'N/A';
+  }
+
+  public getFormattedVoteAverage(): string {
+    return this.voteAverage.toFixed(1);
   }
 }
 ```
@@ -290,33 +310,52 @@ export class MovieSearchUseCase {
 #### Repository Implementations
 ```typescript
 // ✅ Good: Implements domain interface, handles external concerns
-export class TmdbMovieRepository implements MovieRepository {
-  constructor(private readonly httpClient: TmdbHttpClient) {}
+import { Movie, MovieDetails } from '../../../domain/entities/movie';
+import { SearchResult } from '../../../domain/entities/searchResult';
+import { SearchFilters } from '../../../domain/value-objects/searchFilters';
+import { HttpClient as TmdbHttpClient } from '../../http/tmdb/httpClient';
+import { AuthenticationError, InfrastructureError, RateLimitError } from '../../../domain/value-objects/errors';
 
-  async searchMovies(request: SearchRequestDto): Promise<SearchResult<Movie>> {
+interface TmdbSearchResponse {
+  page: number;
+  results: any[]; // Raw TMDB data
+  total_pages: number;
+  total_results: number;
+}
+
+export class TmdbMovieRepository {
+  constructor(private readonly tmdbClient: TmdbHttpClient) {}
+
+  async searchMovies(filters: SearchFilters): Promise<SearchResult<Movie>> {
     try {
-      const response = await this.httpClient.get<TmdbSearchResponse>(
-        '/search/movie',
-        {
-          query: request.query,
-          page: request.page || 1,
-          ...request.filters
-        }
-      );
+      const params = {
+        query: filters.query,
+        page: filters.page || 1,
+      };
 
-      return this.mapToSearchResult(response);
+      const tmdbResponse = await this.tmdbClient.get<TmdbSearchResponse>(
+        "/search/movie",
+        params
+      );
+      
+      return {
+        page: tmdbResponse.page,
+        results: tmdbResponse.results.map(movieData => Movie.create(movieData)),
+        totalPages: tmdbResponse.total_pages,
+        totalResults: tmdbResponse.total_results,
+      };
     } catch (error) {
       throw this.handleError(error);
     }
   }
 
-  private mapToSearchResult(response: TmdbSearchResponse): SearchResult<Movie> {
-    return {
-      results: response.results.map(movieData => Movie.create(movieData)),
-      totalResults: response.total_results,
-      totalPages: response.total_pages,
-      currentPage: response.page
-    };
+  async getMovieDetails(id: number): Promise<MovieDetails> {
+    try {
+      const movieDetailsData = await this.tmdbClient.get<any>(`/movie/${id}`);
+      return MovieDetails.createDetails(movieDetailsData);
+    } catch (error) {
+      throw this.handleError(error);
+    }
   }
 
   private handleError(error: any): Error {
@@ -336,22 +375,49 @@ export class TmdbMovieRepository implements MovieRepository {
 #### React Components
 ```typescript
 // ✅ Good: Properly typed React component
+import { Movie } from '../../domain/entities/movie';
+import { Link } from 'react-router-dom';
+
 interface MovieCardProps {
   movie: Movie;
-  onMovieClick: (movieId: number) => void;
 }
 
-export const MovieCard: React.FC<MovieCardProps> = ({ movie, onMovieClick }) => {
-  const handleClick = useCallback(() => {
-    onMovieClick(movie.getId());
-  }, [movie, onMovieClick]);
+export const MovieCard: React.FC<MovieCardProps> = ({ movie }) => {
+  const placeholderUrl = `https://placehold.co/500x750/374151/ffffff?text=${encodeURIComponent(movie.title)}`;
+  const imageUrl = movie.getPosterUrl() || placeholderUrl;
 
   return (
-    <div className="movie-card" onClick={handleClick}>
-      <h3>{movie.getTitle()}</h3>
-      <p>{movie.getOverview()}</p>
-      {movie.hasHighRating() && <span className="high-rating">⭐</span>}
-    </div>
+    <Link to={`/movie/${movie.id}`} className="movie-card">
+      <div className="bg-gray-800 rounded-lg overflow-hidden shadow-lg">
+        <img 
+          src={imageUrl} 
+          alt={movie.title}
+          className="w-full h-80 object-cover"
+          onError={(e) => {
+            e.currentTarget.src = placeholderUrl;
+          }}
+        />
+        <div className="p-4">
+          <h3 className="text-lg font-semibold text-white mb-2 truncate">
+            {movie.title}
+          </h3>
+          <p className="text-gray-400 text-sm mb-2">
+            {movie.getReleaseYear()}
+          </p>
+          <p className="text-gray-300 text-sm line-clamp-3">
+            {movie.overview}
+          </p>
+          <div className="mt-3 flex justify-between items-center">
+            <span className="text-yellow-400 text-sm">
+              ⭐ {movie.getFormattedVoteAverage()}
+            </span>
+            <span className="text-gray-400 text-xs">
+              {movie.voteCount || 0} votes
+            </span>
+          </div>
+        </div>
+      </div>
+    </Link>
   );
 };
 ```
@@ -427,6 +493,13 @@ async function searchMovies(query: string): Promise<Movie[] | null> {
 ### Unit Test Structure
 ```typescript
 // ✅ Good: Well-structured unit test
+import { Movie } from '../../domain/entities/movie';
+import { MovieRepository } from '../../domain/repositories/movieRepository';
+import { MovieSearchUseCase } from '../../application/use-cases/movieSearchUseCase';
+import { SearchRequestDto } from '../../application/dtos/searchRequestDto';
+import { SearchResult } from '../../domain/entities/searchResult';
+import { ValidationError } from '../../domain/value-objects/errors';
+
 describe('MovieSearchUseCase', () => {
   let useCase: MovieSearchUseCase;
   let mockRepository: jest.Mocked<MovieRepository>;
@@ -435,7 +508,14 @@ describe('MovieSearchUseCase', () => {
     mockRepository = {
       searchMovies: jest.fn(),
       getMovieById: jest.fn(),
-      getPopularMovies: jest.fn()
+      getPopularMovies: jest.fn(),
+      discoverMovies: jest.fn(),
+      getMovieDetails: jest.fn(),
+      getTopRatedMovies: jest.fn(),
+      getUpcomingMovies: jest.fn(),
+      getNowPlayingMovies: jest.fn(),
+      getSimilarMovies: jest.fn(),
+      getRecommendedMovies: jest.fn(),
     };
     useCase = new MovieSearchUseCase(mockRepository);
   });
@@ -444,6 +524,21 @@ describe('MovieSearchUseCase', () => {
     it('should return search results when valid request is provided', async () => {
       // Arrange
       const request: SearchRequestDto = { query: 'Inception' };
+      const mockMovieData = {
+        id: 1,
+        title: 'Inception',
+        overview: 'A dream within a dream.',
+        release_date: '2010-07-16',
+        poster_path: '/inception.jpg',
+        backdrop_path: '/inception_backdrop.jpg',
+        vote_average: 8.8,
+        vote_count: 30000,
+        popularity: 123.45,
+        adult: false,
+        original_language: 'en',
+        original_title: 'Inception',
+        genre_ids: [1, 2],
+      };
       const expectedResult: SearchResult<Movie> = {
         results: [Movie.create(mockMovieData)],
         totalResults: 1,
@@ -475,20 +570,29 @@ describe('MovieSearchUseCase', () => {
 ### Type Testing
 ```typescript
 // ✅ Good: Testing types at compile time
+import { Movie } from '../../domain/entities/movie';
+
 describe('Type Safety', () => {
   it('should enforce correct types', () => {
     // This will fail at compile time if types are wrong
-    const movie: Movie = Movie.create({
+    const movie = Movie.create({
       id: 1,
       title: 'Test Movie',
       overview: 'Test overview',
       release_date: '2023-01-01',
-      vote_average: 8.5
+      vote_average: 8.5,
+      popularity: 10.0,
+      adult: false,
+      original_language: 'en',
+      original_title: 'Original Test Movie',
+      genre_ids: [1, 2],
     });
 
     // TypeScript ensures these methods exist and return correct types
-    const title: string = movie.getTitle();
-    const hasHighRating: boolean = movie.hasHighRating();
+    const title: string = movie.title;
+    const releaseYear: string = movie.getReleaseYear();
+    const formattedVoteAverage: string = movie.getFormattedVoteAverage();
+    const isAdult: boolean = movie.adult;
   });
 });
 ```
@@ -499,21 +603,15 @@ describe('Type Safety', () => {
 ```typescript
 // ✅ Good: Lazy loading for large objects
 export class MovieDetails {
-  private _cast?: Person[];
-  private _reviews?: Review[];
+  // ... other properties
+  private _credits?: any; // Assuming a Credits object
 
-  async getCast(): Promise<Person[]> {
-    if (!this._cast) {
-      this._cast = await this.loadCast();
+  async getCredits(): Promise<any> {
+    if (!this._credits) {
+      // In a real scenario, this would fetch from a repository
+      this._credits = await Promise.resolve({ cast: [], crew: [] }); 
     }
-    return this._cast;
-  }
-
-  async getReviews(): Promise<Review[]> {
-    if (!this._reviews) {
-      this._reviews = await this.loadReviews();
-    }
-    return this._reviews;
+    return this._credits;
   }
 }
 ```
@@ -534,11 +632,19 @@ export class SearchRequest {
     public readonly filters: SearchFilters = {}
   ) {}
 
-  withFilters(filters: SearchFilters): SearchRequest {
+  public withFilters(filters: SearchFilters): SearchRequest {
     return new SearchRequest(
       this.query,
       this.page,
       { ...this.filters, ...filters }
+    );
+  }
+
+  public withPage(page: number): SearchRequest {
+    return new SearchRequest(
+      this.query,
+      page,
+      this.filters
     );
   }
 }
@@ -585,6 +691,11 @@ export class SearchRequestBuilder {
 ### Factory Pattern
 ```typescript
 // ✅ Good: Factory for creating related objects
+import { Movie } from '../../domain/entities/movie';
+import { TvShow } from '../../domain/entities/tvShow';
+import { Person } from '../../domain/entities/person';
+import { DomainError } from '../../domain/value-objects/errors';
+
 export class EntityFactory {
   static createFromApiResponse(type: string, data: any): Movie | TvShow | Person {
     switch (type) {
@@ -670,4 +781,4 @@ export class Result<T, E = Error> {
 - [AI Development Guidelines](../ai/README.md)
 - [ADR Documentation](../adr/README.md)
 
-*Last Updated: July 8, 2025*
+*Last Updated: July 9, 2025*

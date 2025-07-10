@@ -51,7 +51,7 @@ TypeScript configuration (`tsconfig.json`):
 ```
 
 Key TypeScript features used:
-- **Interfaces**: Define contracts for repositories and services
+- **Classes**: Used for rich domain entities with encapsulated behavior.
 - **Generics**: Create reusable components and utilities
 - **Enums**: Define constants and options
 - **Union Types**: Handle multiple possible types

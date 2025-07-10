@@ -73,4 +73,4 @@ camelCase for TypeScript files provides:
 3. **Distinction** from class names (which use PascalCase)
 4. **Alignment** with many modern TypeScript projects
 
-This convention distinguishes between file names (camelCase) and the classes/components they contain (PascalCase), making the codebase more intuitive.
+This convention distinguishes between file names (camelCase) and the classes/components they contain (PascalCase), including rich domain entities, making the codebase more intuitive.

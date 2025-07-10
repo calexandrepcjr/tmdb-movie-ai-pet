@@ -47,7 +47,7 @@ The TMDB Movie Client follows **Domain-Driven Design (DDD)** principles with **C
 │                                                             │
 │  ┌─────────────────────┐    ┌─────────────────────────────┐  │
 │  │     Entities        │    │    Value Objects            │  │
-│  │                     │    │                             │  │
+│  │  (Rich Domain Models) │    │                             │  │
 │  │  - Movie            │    │  - SearchFilters            │  │
 │  │  - Person           │    │  - Errors                   │  │
 │  │  - TvShow           │    │  - SearchResult             │  │
@@ -192,7 +192,7 @@ src/
 6. Response Processing (Infrastructure Layer)
    │
    ├── Error handling
-   ├── Data mapping
+   ├── Data mapping (to rich domain entities using factory methods)
    └── Domain entity creation
    │
    ▼
@@ -323,7 +323,7 @@ class BrowserConfigService implements ConfigurationService {
 ## 🧪 Testing Strategy
 
 ### Unit Testing
-- **Domain Layer**: Pure business logic testing
+- **Domain Layer**: Rich domain model behavior testing
 - **Application Layer**: Use case testing with mocks
 - **Infrastructure Layer**: Integration testing
 
@@ -391,4 +391,4 @@ tests/
 - [API Design](./api-design.md)
 - [ADR Documentation](../adr/README.md)
 
-*Last Updated: July 8, 2025*
+*Last Updated: July 9, 2025*

@@ -15,13 +15,13 @@ This directory contains comprehensive documentation for the TMDB Movie Client pr
 
 ### 🏛️ Architecture Documentation
 - **[System Overview](./architecture/system-overview.md)** - High-level architecture
-- **[Domain Design](./architecture/domain-design.md)** - Domain-driven design principles
-- **[API Design](./architecture/api-design.md)** - API architecture and patterns
+
+
 
 ### 🛠️ Development Guidelines
 - **[TypeScript Guidelines](./development/typescript-guidelines.md)** - TypeScript best practices
-- **[Testing Strategy](./development/testing-strategy.md)** - Testing approach and standards
-- **[Code Style](./development/code-style.md)** - Coding standards and conventions
+
+
 
 ## 🚀 Quick Start for New Developers
 
@@ -44,4 +44,4 @@ When making architectural decisions:
 
 ---
 
-*Last Updated: July 8, 2025*
+*Last Updated: July 9, 2025*

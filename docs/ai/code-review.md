@@ -75,9 +75,10 @@ CRITICAL: Reject any Hungarian notation (I-prefixed interfaces). Examples:
 
 CRITICAL: Reject incorrect file naming. Examples:
 ❌ UserService.ts → ✅ userService.ts
-❌ movie-repository.ts → ✅ movieRepository.ts
-❌ search_controller.ts → ✅ searchController.ts
-❌ app.tsx → ✅ App.tsx (React components use PascalCase)"
+❌ MovieRepository.ts → ✅ movieRepository.ts
+❌ searchController.ts → ✅ searchController.ts
+✅ App.tsx (React components use PascalCase)
+✅ MovieCard.tsx (React components use PascalCase)"
 ```
 
 #### Domain-Driven Design
