@@ -6,7 +6,7 @@
 > This is a **research-focused pet project** designed to explore and validate **aggressive AI-assisted development methodologies**. It serves as a testing ground for advanced AI-driven software engineering practices, architectural decision-making, and code generation workflows.
 > 
 > **🤖 AI Tools Used:**
-> - **Primary**: GitHub Copilot + Claude Sonnet 4
+> - **Primary**: GitHub Copilot + Claude Sonnet 4 + Gemini
 > - **Purpose**: Research on AI-augmented software engineering
 > - **Methodology**: Structured AI prompting with anti-vibe coding enforcement
 > 
