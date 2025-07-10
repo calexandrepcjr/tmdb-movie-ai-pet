@@ -49,26 +49,7 @@ export const useMovieSearch = () => {
       
       return { 
         success: true, 
-        data: {
-          results: result.results.map((movie: any) => ({
-            id: movie.id,
-            title: movie.title,
-            overview: movie.overview,
-            posterPath: movie.poster_path,
-            backdropPath: movie.backdrop_path,
-            releaseDate: movie.release_date,
-            voteAverage: movie.vote_average,
-            voteCount: movie.vote_count,
-            popularity: movie.popularity,
-            adult: movie.adult,
-            originalLanguage: movie.original_language,
-            originalTitle: movie.original_title,
-            genreIds: movie.genre_ids,
-          })),
-          totalPages: result.totalPages,
-          totalResults: result.totalResults,
-          page: result.page,
-        }
+        data: result
       };
     } catch (err: any) {
       const errorMessage = err.message || 'An error occurred while searching for movies';
@@ -99,27 +80,7 @@ export const useMovieSearch = () => {
       
       return { 
         success: true, 
-        data: {
-          results: result.results.map((tvShow: any) => ({
-            id: tvShow.id,
-            name: tvShow.name,
-            originalName: tvShow.original_name,
-            overview: tvShow.overview,
-            posterPath: tvShow.poster_path,
-            backdropPath: tvShow.backdrop_path,
-            firstAirDate: tvShow.first_air_date,
-            voteAverage: tvShow.vote_average,
-            voteCount: tvShow.vote_count,
-            popularity: tvShow.popularity,
-            adult: tvShow.adult || false,
-            originalLanguage: tvShow.original_language,
-            originCountry: tvShow.origin_country || [],
-            genreIds: tvShow.genre_ids || [],
-          })),
-          totalPages: result.totalPages,
-          totalResults: result.totalResults,
-          page: result.page,
-        }
+        data: result
       };
     } catch (err: any) {
       const errorMessage = err.message || 'An error occurred while searching for TV shows';
@@ -150,27 +111,7 @@ export const useMovieSearch = () => {
       
       return { 
         success: true, 
-        data: {
-          results: result.results.map((person: any) => ({
-            id: person.id,
-            name: person.name,
-            biography: person.biography || '',
-            birthday: person.birthday,
-            deathday: person.deathday,
-            gender: person.gender,
-            homepage: person.homepage,
-            imdbId: person.imdb_id || '',
-            knownForDepartment: person.known_for_department || '',
-            placeOfBirth: person.place_of_birth,
-            popularity: person.popularity,
-            profilePath: person.profile_path,
-            adult: person.adult || false,
-            alsoKnownAs: person.also_known_as || [],
-          })),
-          totalPages: result.totalPages,
-          totalResults: result.totalResults,
-          page: result.page,
-        }
+        data: result
       };
     } catch (err: any) {
       const errorMessage = err.message || 'An error occurred while searching for people';
@@ -196,26 +137,7 @@ export const useMovieSearch = () => {
       
       return { 
         success: true, 
-        data: {
-          results: result.results.map((movie: any) => ({
-            id: movie.id,
-            title: movie.title,
-            overview: movie.overview,
-            posterPath: movie.poster_path,
-            backdropPath: movie.backdrop_path,
-            releaseDate: movie.release_date,
-            voteAverage: movie.vote_average,
-            voteCount: movie.vote_count,
-            popularity: movie.popularity,
-            adult: movie.adult,
-            originalLanguage: movie.original_language,
-            originalTitle: movie.original_title,
-            genreIds: movie.genre_ids,
-          })),
-          totalPages: result.totalPages,
-          totalResults: result.totalResults,
-          page: result.page,
-        }
+        data: result
       };
     } catch (err: any) {
       const errorMessage = err.message || 'An error occurred while fetching popular movies';
@@ -241,27 +163,7 @@ export const useMovieSearch = () => {
       
       return { 
         success: true, 
-        data: {
-          results: result.results.map((tvShow: any) => ({
-            id: tvShow.id,
-            name: tvShow.name,
-            originalName: tvShow.original_name,
-            overview: tvShow.overview,
-            posterPath: tvShow.poster_path,
-            backdropPath: tvShow.backdrop_path,
-            firstAirDate: tvShow.first_air_date,
-            voteAverage: tvShow.vote_average,
-            voteCount: tvShow.vote_count,
-            popularity: tvShow.popularity,
-            adult: tvShow.adult || false,
-            originalLanguage: tvShow.original_language,
-            originCountry: tvShow.origin_country || [],
-            genreIds: tvShow.genre_ids || [],
-          })),
-          totalPages: result.totalPages,
-          totalResults: result.totalResults,
-          page: result.page,
-        }
+        data: result
       };
     } catch (err: any) {
       const errorMessage = err.message || 'An error occurred while fetching popular TV shows';
@@ -287,27 +189,7 @@ export const useMovieSearch = () => {
       
       return { 
         success: true, 
-        data: {
-          results: result.results.map((person: any) => ({
-            id: person.id,
-            name: person.name,
-            biography: person.biography || '',
-            birthday: person.birthday,
-            deathday: person.deathday,
-            gender: person.gender,
-            homepage: person.homepage,
-            imdbId: person.imdb_id || '',
-            knownForDepartment: person.known_for_department || '',
-            placeOfBirth: person.place_of_birth,
-            popularity: person.popularity,
-            profilePath: person.profile_path,
-            adult: person.adult || false,
-            alsoKnownAs: person.also_known_as || [],
-          })),
-          totalPages: result.totalPages,
-          totalResults: result.totalResults,
-          page: result.page,
-        }
+        data: result
       };
     } catch (err: any) {
       const errorMessage = err.message || 'An error occurred while fetching popular people';

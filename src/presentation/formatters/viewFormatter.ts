@@ -14,7 +14,9 @@ export class ViewFormatter {
   }
 
   displayMovieResults(results: SearchResult<Movie>) {
-    console.log(chalk.green(`\n📽️  Found ${results.totalResults} movies (Page ${results.page}/${results.totalPages})\n`));
+    console.log(chalk.green(`
+📽️  Found ${results.totalResults} movies (Page ${results.page}/${results.totalPages})
+`));
 
     if (results.results.length === 0) {
       console.log(chalk.yellow('No movies found.'));
@@ -35,8 +37,8 @@ export class ViewFormatter {
       table.push([
         movie.id,
         movie.title,
-        movie.releaseDate || 'N/A',
-        `⭐ ${movie.voteAverage.toFixed(1)}`,
+        movie.getReleaseYear(),
+        `⭐ ${movie.getFormattedVoteAverage()}`,
         this.truncateText(movie.overview, 100),
       ]);
     });
@@ -46,7 +48,9 @@ export class ViewFormatter {
   }
 
   displayMovieDetails(movie: MovieDetails) {
-    console.log(chalk.green(`\n📽️  Movie Details\n`));
+    console.log(chalk.green(`
+📽️  Movie Details
+`));
 
     const table = new Table({
       chars: {
@@ -75,26 +79,23 @@ export class ViewFormatter {
     table.push(
       ['ID', movie.id],
       ['Title', movie.title],
-      ['Original Title', movie.originalTitle],
-      ['Release Date', movie.releaseDate || 'N/A'],
-      ['Runtime', movie.runtime ? `${movie.runtime} minutes` : 'N/A'],
-      ['Rating', `⭐ ${movie.voteAverage.toFixed(1)} (${movie.voteCount} votes)`],
-      ['Genres', movie.genres.map(g => g.name).join(', ')],
-      ['Status', movie.status],
-      ['Budget', movie.budget ? `$${movie.budget.toLocaleString()}` : 'N/A'],
-      ['Revenue', movie.revenue ? `$${movie.revenue.toLocaleString()}` : 'N/A'],
-      ['Tagline', movie.tagline || 'N/A'],
+      ['Release Date', movie.getReleaseYear()],
+      ['Runtime', movie.getFormattedRuntime()],
+      ['Rating', `⭐ ${movie.getFormattedVoteAverage()} (${movie.voteCount} votes)`],
+      ['Genres', movie.getGenreNames()],
+      ['Budget', movie.budget ? `${movie.budget.toLocaleString()}` : 'N/A'],
+      ['Revenue', movie.revenue ? `${movie.revenue.toLocaleString()}` : 'N/A'],
       ['Overview', this.wrapText(movie.overview, 60)],
-      ['Homepage', movie.homepage || 'N/A'],
-      ['IMDB ID', movie.imdbId || 'N/A'],
-      ['Poster URL', movie.posterPath ? this.configService.getFullImageUrl(movie.posterPath) : 'N/A'],
+      ['Poster URL', movie.getPosterUrl()],
     );
 
     console.log(table.toString());
   }
 
   displayTvShowResults(results: SearchResult<TvShow>) {
-    console.log(chalk.green(`\n📺  Found ${results.totalResults} TV shows (Page ${results.page}/${results.totalPages})\n`));
+    console.log(chalk.green(`
+📺  Found ${results.totalResults} TV shows (Page ${results.page}/${results.totalPages})
+`));
 
     if (results.results.length === 0) {
       console.log(chalk.yellow('No TV shows found.'));
@@ -115,8 +116,8 @@ export class ViewFormatter {
       table.push([
         show.id,
         show.name,
-        show.firstAirDate || 'N/A',
-        `⭐ ${show.voteAverage.toFixed(1)}`,
+        show.getFirstAirYear(),
+        `⭐ ${show.getFormattedVoteAverage()}`,
         this.truncateText(show.overview, 100),
       ]);
     });
@@ -126,7 +127,9 @@ export class ViewFormatter {
   }
 
   displayTvShowDetails(show: TvShowDetails) {
-    console.log(chalk.green(`\n📺  TV Show Details\n`));
+    console.log(chalk.green(`
+📺  TV Show Details
+`));
 
     const table = new Table({
       chars: {
@@ -156,28 +159,30 @@ export class ViewFormatter {
       ['ID', show.id],
       ['Name', show.name],
       ['Original Name', show.originalName],
-      ['First Air Date', show.firstAirDate || 'N/A'],
-      ['Last Air Date', show.lastAirDate || 'N/A'],
+      ['First Air Date', show.getFirstAirYear()],
+      ['Last Air Date', show.lastAirDate ? show.lastAirDate.getFullYear().toString() : 'N/A'],
       ['Status', show.status],
       ['Type', show.type],
-      ['Rating', `⭐ ${show.voteAverage.toFixed(1)} (${show.voteCount} votes)`],
-      ['Genres', show.genres.map(g => g.name).join(', ')],
+      ['Rating', `⭐ ${show.getFormattedVoteAverage()} (${show.voteCount} votes)`],
+      ['Genres', show.getGenreNames()],
       ['Networks', show.networks.map(n => n.name).join(', ')],
       ['Seasons', show.numberOfSeasons],
       ['Episodes', show.numberOfEpisodes],
-      ['Episode Runtime', show.episodeRunTime.join(', ') + ' minutes'],
+      ['Episode Runtime', show.getFormattedEpisodeRunTime()],
       ['In Production', show.inProduction ? 'Yes' : 'No'],
       ['Tagline', show.tagline || 'N/A'],
       ['Overview', this.wrapText(show.overview, 60)],
       ['Homepage', show.homepage || 'N/A'],
-      ['Poster URL', show.posterPath ? this.configService.getFullImageUrl(show.posterPath) : 'N/A'],
+      ['Poster URL', show.getPosterUrl()],
     );
 
     console.log(table.toString());
   }
 
   displayPersonResults(results: SearchResult<Person>) {
-    console.log(chalk.green(`\n👤  Found ${results.totalResults} people (Page ${results.page}/${results.totalPages})\n`));
+    console.log(chalk.green(`
+👤  Found ${results.totalResults} people (Page ${results.page}/${results.totalPages})
+`));
 
     if (results.results.length === 0) {
       console.log(chalk.yellow('No people found.'));
@@ -209,7 +214,9 @@ export class ViewFormatter {
   }
 
   displayPersonDetails(person: Person) {
-    console.log(chalk.green(`\n👤  Person Details\n`));
+    console.log(chalk.green(`
+👤  Person Details
+`));
 
     const table = new Table({
       chars: {
@@ -239,16 +246,17 @@ export class ViewFormatter {
       ['ID', person.id],
       ['Name', person.name],
       ['Known For', person.knownForDepartment],
-      ['Birthday', person.birthday || 'N/A'],
-      ['Deathday', person.deathday || 'N/A'],
+      ['Birthday', person.birthday ? person.birthday.toDateString() : 'N/A'],
+      ['Deathday', person.deathday ? person.deathday.toDateString() : 'N/A'],
+      ['Age', person.getAge()],
       ['Place of Birth', person.placeOfBirth || 'N/A'],
       ['Popularity', person.popularity.toFixed(1)],
-      ['Gender', this.getGenderText(person.gender)],
+      ['Gender', person.getGenderText()],
       ['Also Known As', person.alsoKnownAs.join(', ') || 'N/A'],
       ['Biography', this.wrapText(person.biography, 60)],
       ['Homepage', person.homepage || 'N/A'],
       ['IMDB ID', person.imdbId || 'N/A'],
-      ['Profile URL', person.profilePath ? this.configService.getFullImageUrl(person.profilePath) : 'N/A'],
+      ['Profile URL', person.getProfileUrl()],
     );
 
     console.log(table.toString());

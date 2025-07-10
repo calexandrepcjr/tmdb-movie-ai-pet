@@ -99,76 +99,19 @@ export class MovieRepository
     this.tmdbClient = tmdbClient;
   }
 
-  private mapTmdbMovieToMovie(tmdbMovie: TmdbMovieResponse): Movie {
+  private mapResponseToSearchResult(response: TmdbSearchResponse): SearchResult<Movie> {
     return {
-      id: tmdbMovie.id,
-      title: tmdbMovie.title,
-      originalTitle: tmdbMovie.original_title,
-      overview: tmdbMovie.overview,
-      releaseDate: tmdbMovie.release_date,
-      posterPath: tmdbMovie.poster_path,
-      backdropPath: tmdbMovie.backdrop_path,
-      genreIds: tmdbMovie.genre_ids,
-      popularity: tmdbMovie.popularity,
-      voteAverage: tmdbMovie.vote_average ?? 0,
-      voteCount: tmdbMovie.vote_count ?? 0,
-      adult: tmdbMovie.adult,
-      originalLanguage: tmdbMovie.original_language,
-      video: tmdbMovie.video,
-    };
-  }
-
-  private mapTmdbSearchResponse(tmdbResponse: TmdbSearchResponse): SearchResult<Movie> {
-    return {
-      page: tmdbResponse.page,
-      results: tmdbResponse.results.map(movie => this.mapTmdbMovieToMovie(movie)),
-      totalPages: tmdbResponse.total_pages,
-      totalResults: tmdbResponse.total_results,
-    };
-  }
-
-  private mapTmdbMovieDetailsToMovieDetails(tmdbMovieDetails: TmdbMovieDetailsResponse): MovieDetails {
-    return {
-      ...this.mapTmdbMovieToMovie(tmdbMovieDetails),
-      budget: tmdbMovieDetails.budget,
-      genres: tmdbMovieDetails.genres.map(genre => ({
-        id: genre.id,
-        name: genre.name,
-      })),
-      homepage: tmdbMovieDetails.homepage,
-      imdbId: tmdbMovieDetails.imdb_id,
-      productionCompanies: tmdbMovieDetails.production_companies.map(company => ({
-        id: company.id,
-        name: company.name,
-        logoPath: company.logo_path,
-        originCountry: company.origin_country,
-      })),
-      productionCountries: tmdbMovieDetails.production_countries.map(country => ({
-        iso31661: country.iso_3166_1,
-        name: country.name,
-      })),
-      revenue: tmdbMovieDetails.revenue,
-      runtime: tmdbMovieDetails.runtime,
-      spokenLanguages: tmdbMovieDetails.spoken_languages.map(language => ({
-        englishName: language.english_name,
-        iso6391: language.iso_639_1,
-        name: language.name,
-      })),
-      status: tmdbMovieDetails.status,
-      tagline: tmdbMovieDetails.tagline,
-      belongsToCollection: tmdbMovieDetails.belongs_to_collection ? {
-        id: tmdbMovieDetails.belongs_to_collection.id,
-        name: tmdbMovieDetails.belongs_to_collection.name,
-        posterPath: tmdbMovieDetails.belongs_to_collection.poster_path,
-        backdropPath: tmdbMovieDetails.belongs_to_collection.backdrop_path,
-      } : null,
+      page: response.page,
+      results: response.results.map(movie => Movie.create(movie)),
+      totalPages: response.total_pages,
+      totalResults: response.total_results,
     };
   }
 
   async findById(id: number): Promise<MovieDetails | null> {
     try {
-      const movie = await this.tmdbClient.get<MovieDetails>(`/movie/${id}`);
-      return movie;
+      const movieDetailsData = await this.tmdbClient.get<any>(`/movie/${id}`);
+      return MovieDetails.createDetails(movieDetailsData);
     } catch (error) {
       this.handleError(error);
     }
@@ -176,10 +119,10 @@ export class MovieRepository
 
   async findAll(): Promise<Movie[]> {
     try {
-      const result = await this.tmdbClient.get<SearchResult<Movie>>(
+      const result = await this.tmdbClient.get<TmdbSearchResponse>(
         "/movie/popular"
       );
-      return result.results;
+      return result.results.map(movie => Movie.create(movie));
     } catch (error) {
       this.handleError(error);
     }
@@ -211,7 +154,7 @@ export class MovieRepository
         params
       );
       
-      return this.mapTmdbSearchResponse(tmdbResponse);
+      return this.mapResponseToSearchResult(tmdbResponse);
     } catch (error) {
       this.handleError(error);
     }
@@ -256,10 +199,11 @@ export class MovieRepository
           filters.withWatchMonetizationTypes?.join("|"),
       };
 
-      return await this.tmdbClient.get<SearchResult<Movie>>(
+      const response = await this.tmdbClient.get<TmdbSearchResponse>(
         "/discover/movie",
         params
       );
+      return this.mapResponseToSearchResult(response);
     } catch (error) {
       this.handleError(error);
     }
@@ -290,9 +234,10 @@ export class MovieRepository
 
   async getPopularMovies(page: number = 1): Promise<SearchResult<Movie>> {
     try {
-      return await this.tmdbClient.get<SearchResult<Movie>>("/movie/popular", {
+      const response = await this.tmdbClient.get<TmdbSearchResponse>("/movie/popular", {
         page,
       });
+      return this.mapResponseToSearchResult(response);
     } catch (error) {
       this.handleError(error);
     }
@@ -300,10 +245,11 @@ export class MovieRepository
 
   async getTopRatedMovies(page: number = 1): Promise<SearchResult<Movie>> {
     try {
-      return await this.tmdbClient.get<SearchResult<Movie>>(
+      const response = await this.tmdbClient.get<TmdbSearchResponse>(
         "/movie/top_rated",
         { page }
       );
+      return this.mapResponseToSearchResult(response);
     } catch (error) {
       this.handleError(error);
     }
@@ -311,9 +257,10 @@ export class MovieRepository
 
   async getUpcomingMovies(page: number = 1): Promise<SearchResult<Movie>> {
     try {
-      return await this.tmdbClient.get<SearchResult<Movie>>("/movie/upcoming", {
+      const response = await this.tmdbClient.get<TmdbSearchResponse>("/movie/upcoming", {
         page,
       });
+      return this.mapResponseToSearchResult(response);
     } catch (error) {
       this.handleError(error);
     }
@@ -321,10 +268,11 @@ export class MovieRepository
 
   async getNowPlayingMovies(page: number = 1): Promise<SearchResult<Movie>> {
     try {
-      return await this.tmdbClient.get<SearchResult<Movie>>(
+      const response = await this.tmdbClient.get<TmdbSearchResponse>(
         "/movie/now_playing",
         { page }
       );
+      return this.mapResponseToSearchResult(response);
     } catch (error) {
       this.handleError(error);
     }
@@ -332,7 +280,8 @@ export class MovieRepository
 
   async getMovieDetails(id: number): Promise<MovieDetails> {
     try {
-      return await this.tmdbClient.get<MovieDetails>(`/movie/${id}`);
+      const response = await this.tmdbClient.get<any>(`/movie/${id}`);
+      return MovieDetails.createDetails(response);
     } catch (error) {
       this.handleError(error);
     }
@@ -375,10 +324,11 @@ export class MovieRepository
     page: number = 1
   ): Promise<SearchResult<Movie>> {
     try {
-      return await this.tmdbClient.get<SearchResult<Movie>>(
+      const response = await this.tmdbClient.get<TmdbSearchResponse>(
         `/movie/${id}/similar`,
         { page }
       );
+      return this.mapResponseToSearchResult(response);
     } catch (error) {
       this.handleError(error);
     }
@@ -389,10 +339,11 @@ export class MovieRepository
     page: number = 1
   ): Promise<SearchResult<Movie>> {
     try {
-      return await this.tmdbClient.get<SearchResult<Movie>>(
+      const response = await this.tmdbClient.get<TmdbSearchResponse>(
         `/movie/${id}/recommendations`,
         { page }
       );
+      return this.mapResponseToSearchResult(response);
     } catch (error) {
       this.handleError(error);
     }

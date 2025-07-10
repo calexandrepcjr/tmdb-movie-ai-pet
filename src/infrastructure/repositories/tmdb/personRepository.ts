@@ -28,8 +28,8 @@ export class PersonRepository
 
   async findById(id: number): Promise<Person | null> {
     try {
-      const person = await this.tmdbClient.get<Person>(`/person/${id}`);
-      return person;
+      const personData = await this.tmdbClient.get<any>(`/person/${id}`);
+      return Person.create(personData);
     } catch (error) {
       this.handleError(error);
     }
@@ -37,10 +37,10 @@ export class PersonRepository
 
   async findAll(): Promise<Person[]> {
     try {
-      const result = await this.tmdbClient.get<SearchResult<Person>>(
+      const result = await this.tmdbClient.get<SearchResult<any>>(
         "/person/popular"
       );
-      return result.results;
+      return result.results.map(person => Person.create(person));
     } catch (error) {
       this.handleError(error);
     }
@@ -64,10 +64,15 @@ export class PersonRepository
         language: filters.language || "en-US",
       };
 
-      return await this.tmdbClient.get<SearchResult<Person>>(
+      const response = await this.tmdbClient.get<SearchResult<any>>(
         "/search/person",
         params
       );
+
+      return {
+        ...response,
+        results: response.results.map(person => Person.create(person)),
+      };
     } catch (error) {
       this.handleError(error);
     }
@@ -79,7 +84,8 @@ export class PersonRepository
         language: "en-US",
       };
 
-      return await this.tmdbClient.get<Person>(`/person/${id}`, params);
+      const personData = await this.tmdbClient.get<any>(`/person/${id}`, params);
+      return Person.create(personData);
     } catch (error) {
       this.handleError(error);
     }
@@ -92,10 +98,15 @@ export class PersonRepository
         language: "en-US",
       };
 
-      return await this.tmdbClient.get<SearchResult<Person>>(
+      const response = await this.tmdbClient.get<SearchResult<any>>(
         "/person/popular",
         params
       );
+
+      return {
+        ...response,
+        results: response.results.map(person => Person.create(person)),
+      };
     } catch (error) {
       this.handleError(error);
     }

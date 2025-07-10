@@ -5,46 +5,9 @@ import TvShowCard from '../components/TvShowCard';
 import PersonCard from '../components/PersonCard';
 
 // Define interfaces for the API response data
-interface Movie {
-  id: number;
-  title: string;
-  overview: string;
-  posterPath: string;
-  backdropPath: string;
-  releaseDate: string;
-  voteAverage: number;
-  voteCount: number;
-  popularity: number;
-  adult: boolean;
-  originalLanguage: string;
-  originalTitle: string;
-  genreIds: number[];
-}
-
-interface TvShow {
-  id: number;
-  name: string;
-  overview: string;
-  posterPath: string;
-  backdropPath: string;
-  firstAirDate: string;
-  voteAverage: number;
-  voteCount: number;
-  popularity: number;
-  adult: boolean;
-  originalLanguage: string;
-  originalName: string;
-  genreIds: number[];
-}
-
-interface Person {
-  id: number;
-  name: string;
-  profilePath: string;
-  popularity: number;
-  adult: boolean;
-  knownForDepartment: string;
-}
+import { Movie } from '../../../domain/entities/movie';
+import { TvShow } from '../../../domain/entities/tvShow';
+import { Person } from '../../../domain/entities/person';
 
 // Sort options for different content types
 type SortOption = 'popularity' | 'vote_average' | 'release_date' | 'title';
@@ -143,25 +106,39 @@ const SearchPage: React.FC = () => {
   };
 
   const sortResults = (sortBy: SortOption) => {
-    const sortFunction = (a: any, b: any) => {
-      let aValue, bValue;
+    const sortFunction = (a: Movie | TvShow | Person, b: Movie | TvShow | Person) => {
+      let aValue: any, bValue: any;
       
       switch (sortBy) {
         case 'popularity':
-          aValue = a.popularity || 0;
-          bValue = b.popularity || 0;
-          return bValue - aValue; // Descending order
+          if (activeTab === 'movies') {
+            aValue = (a as Movie).popularity || 0;
+            bValue = (b as Movie).popularity || 0;
+          } else if (activeTab === 'tv') {
+            aValue = (a as TvShow).popularity || 0;
+            bValue = (b as TvShow).popularity || 0;
+          } else if (activeTab === 'people') {
+            aValue = (a as Person).popularity || 0;
+            bValue = (b as Person).popularity || 0;
+          }
+          return (bValue || 0) - (aValue || 0); // Descending order
         case 'vote_average':
-          aValue = a.voteAverage || 0;
-          bValue = b.voteAverage || 0;
+          if (activeTab === 'movies') {
+            aValue = (a as Movie).voteAverage || 0;
+            bValue = (b as Movie).voteAverage || 0;
+          } else if (activeTab === 'tv') {
+            aValue = (a as TvShow).voteAverage || 0;
+            bValue = (b as TvShow).voteAverage || 0;
+          }
+          return (bValue || 0) - (aValue || 0); // Descending order
           return bValue - aValue; // Descending order
         case 'release_date':
           if (activeTab === 'movies') {
-            aValue = new Date(a.releaseDate || '1900-01-01').getTime();
-            bValue = new Date(b.releaseDate || '1900-01-01').getTime();
+            aValue = (a as Movie).releaseDate ? (a as Movie).releaseDate!.getTime() : 0;
+            bValue = (b as Movie).releaseDate ? (b as Movie).releaseDate!.getTime() : 0;
           } else if (activeTab === 'tv') {
-            aValue = new Date(a.firstAirDate || '1900-01-01').getTime();
-            bValue = new Date(b.firstAirDate || '1900-01-01').getTime();
+            aValue = (a as TvShow).firstAirDate ? (a as TvShow).firstAirDate!.getTime() : 0;
+            bValue = (b as TvShow).firstAirDate ? (b as TvShow).firstAirDate!.getTime() : 0;
           } else {
             aValue = 0;
             bValue = 0;
@@ -169,14 +146,14 @@ const SearchPage: React.FC = () => {
           return (bValue || 0) - (aValue || 0); // Descending order (newest first)
         case 'title':
           if (activeTab === 'movies') {
-            aValue = a.title || '';
-            bValue = b.title || '';
+            aValue = (a as Movie).title || '';
+            bValue = (b as Movie).title || '';
           } else if (activeTab === 'tv') {
-            aValue = a.name || '';
-            bValue = b.name || '';
+            aValue = (a as TvShow).name || '';
+            bValue = (b as TvShow).name || '';
           } else if (activeTab === 'people') {
-            aValue = a.name || '';
-            bValue = b.name || '';
+            aValue = (a as Person).name || '';
+            bValue = (b as Person).name || '';
           }
           return aValue.localeCompare(bValue); // Ascending order
         default:
@@ -185,11 +162,11 @@ const SearchPage: React.FC = () => {
     };
 
     if (activeTab === 'movies') {
-      setMovies(prev => [...prev].sort(sortFunction));
+      setMovies(prev => [...prev].sort(sortFunction as (a: Movie, b: Movie) => number));
     } else if (activeTab === 'tv') {
-      setTvShows(prev => [...prev].sort(sortFunction));
+      setTvShows(prev => [...prev].sort(sortFunction as (a: TvShow, b: TvShow) => number));
     } else if (activeTab === 'people') {
-      setPeople(prev => [...prev].sort(sortFunction));
+      setPeople(prev => [...prev].sort(sortFunction as (a: Person, b: Person) => number));
     }
   };
 

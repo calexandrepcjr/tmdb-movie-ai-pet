@@ -4,47 +4,9 @@ import MovieCard from '../components/MovieCard';
 import TvShowCard from '../components/TvShowCard';
 import PersonCard from '../components/PersonCard';
 
-// Define interfaces for the API response data
-interface Movie {
-  id: number;
-  title: string;
-  overview: string;
-  posterPath: string;
-  backdropPath: string;
-  releaseDate: string;
-  voteAverage: number;
-  voteCount: number;
-  popularity: number;
-  adult: boolean;
-  originalLanguage: string;
-  originalTitle: string;
-  genreIds: number[];
-}
-
-interface TvShow {
-  id: number;
-  name: string;
-  overview: string;
-  posterPath: string;
-  backdropPath: string;
-  firstAirDate: string;
-  voteAverage: number;
-  voteCount: number;
-  popularity: number;
-  adult: boolean;
-  originalLanguage: string;
-  originalName: string;
-  genreIds: number[];
-}
-
-interface Person {
-  id: number;
-  name: string;
-  profilePath: string;
-  popularity: number;
-  adult: boolean;
-  knownForDepartment: string;
-}
+import { Movie } from '../../../domain/entities/movie';
+import { TvShow } from '../../../domain/entities/tvShow';
+import { Person } from '../../../domain/entities/person';
 
 const HomePage: React.FC = () => {
   const [trendingMovies, setTrendingMovies] = useState<Movie[]>([]);

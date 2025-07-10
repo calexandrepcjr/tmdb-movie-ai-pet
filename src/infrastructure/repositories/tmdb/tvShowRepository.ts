@@ -32,8 +32,8 @@ export class TvShowRepository
 
   async findById(id: number): Promise<TvShowDetails | null> {
     try {
-      const tvShow = await this.tmdbClient.get<TvShowDetails>(`/tv/${id}`);
-      return tvShow;
+      const tvShowData = await this.tmdbClient.get<any>(`/tv/${id}`);
+      return TvShowDetails.createDetails(tvShowData);
     } catch (error) {
       this.handleError(error);
     }
@@ -41,10 +41,10 @@ export class TvShowRepository
 
   async findAll(): Promise<TvShow[]> {
     try {
-      const result = await this.tmdbClient.get<SearchResult<TvShow>>(
+      const result = await this.tmdbClient.get<SearchResult<any>>(
         "/tv/popular"
       );
-      return result.results;
+      return result.results.map(tvShow => TvShow.create(tvShow));
     } catch (error) {
       this.handleError(error);
     }
@@ -69,10 +69,15 @@ export class TvShowRepository
         first_air_date_year: filters.year,
       };
 
-      return await this.tmdbClient.get<SearchResult<TvShow>>(
+      const response = await this.tmdbClient.get<SearchResult<any>>(
         "/search/tv",
         params
       );
+
+      return {
+        ...response,
+        results: response.results.map(tvShow => TvShow.create(tvShow)),
+      };
     } catch (error) {
       this.handleError(error);
     }
@@ -108,10 +113,15 @@ export class TvShowRepository
         with_keywords: filters.withKeywords,
       };
 
-      return await this.tmdbClient.get<SearchResult<TvShow>>(
+      const response = await this.tmdbClient.get<SearchResult<any>>(
         "/discover/tv",
         params
       );
+
+      return {
+        ...response,
+        results: response.results.map(tvShow => TvShow.create(tvShow)),
+      };
     } catch (error) {
       this.handleError(error);
     }
@@ -119,7 +129,8 @@ export class TvShowRepository
 
   async getTvShowDetails(id: number): Promise<TvShowDetails> {
     try {
-      return await this.tmdbClient.get<TvShowDetails>(`/tv/${id}`);
+      const tvShowData = await this.tmdbClient.get<any>(`/tv/${id}`);
+      return TvShowDetails.createDetails(tvShowData);
     } catch (error) {
       this.handleError(error);
     }
@@ -132,10 +143,15 @@ export class TvShowRepository
         language: "en-US",
       };
 
-      return await this.tmdbClient.get<SearchResult<TvShow>>(
+      const response = await this.tmdbClient.get<SearchResult<any>>(
         "/tv/popular",
         params
       );
+
+      return {
+        ...response,
+        results: response.results.map(tvShow => TvShow.create(tvShow)),
+      };
     } catch (error) {
       this.handleError(error);
     }
@@ -148,10 +164,15 @@ export class TvShowRepository
         language: "en-US",
       };
 
-      return await this.tmdbClient.get<SearchResult<TvShow>>(
+      const response = await this.tmdbClient.get<SearchResult<any>>(
         "/tv/top_rated",
         params
       );
+
+      return {
+        ...response,
+        results: response.results.map(tvShow => TvShow.create(tvShow)),
+      };
     } catch (error) {
       this.handleError(error);
     }
@@ -164,10 +185,15 @@ export class TvShowRepository
         language: "en-US",
       };
 
-      return await this.tmdbClient.get<SearchResult<TvShow>>(
+      const response = await this.tmdbClient.get<SearchResult<any>>(
         "/tv/airing_today",
         params
       );
+
+      return {
+        ...response,
+        results: response.results.map(tvShow => TvShow.create(tvShow)),
+      };
     } catch (error) {
       this.handleError(error);
     }
@@ -180,10 +206,15 @@ export class TvShowRepository
         language: "en-US",
       };
 
-      return await this.tmdbClient.get<SearchResult<TvShow>>(
+      const response = await this.tmdbClient.get<SearchResult<any>>(
         "/tv/on_the_air",
         params
       );
+
+      return {
+        ...response,
+        results: response.results.map(tvShow => TvShow.create(tvShow)),
+      };
     } catch (error) {
       this.handleError(error);
     }
@@ -207,10 +238,15 @@ export class TvShowRepository
         language: "en-US",
       };
 
-      return await this.tmdbClient.get<SearchResult<TvShow>>(
+      const response = await this.tmdbClient.get<SearchResult<any>>(
         `/tv/${id}/similar`,
         params
       );
+
+      return {
+        ...response,
+        results: response.results.map(tvShow => TvShow.create(tvShow)),
+      };
     } catch (error) {
       this.handleError(error);
     }
@@ -226,10 +262,15 @@ export class TvShowRepository
         language: "en-US",
       };
 
-      return await this.tmdbClient.get<SearchResult<TvShow>>(
+      const response = await this.tmdbClient.get<SearchResult<any>>(
         `/tv/${id}/recommendations`,
         params
       );
+
+      return {
+        ...response,
+        results: response.results.map(tvShow => TvShow.create(tvShow)),
+      };
     } catch (error) {
       this.handleError(error);
     }

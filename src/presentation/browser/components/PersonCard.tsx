@@ -1,14 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-
-interface Person {
-  id: number;
-  name: string;
-  profilePath: string;
-  popularity: number;
-  adult: boolean;
-  knownForDepartment: string;
-}
+import { Person } from '../../../domain/entities/person';
 
 interface PersonCardProps {
   person: Person;
@@ -17,9 +9,7 @@ interface PersonCardProps {
 const PersonCard: React.FC<PersonCardProps> = ({ person }) => {
   const placeholderUrl = `https://ui-avatars.com/api/?name=${encodeURIComponent(person.name)}&size=500&background=374151&color=ffffff&bold=true`;
   
-  const imageUrl = person.profilePath 
-    ? `https://image.tmdb.org/t/p/w500${person.profilePath}`
-    : placeholderUrl;
+  const imageUrl = person.getProfileUrl() || placeholderUrl;
 
   return (
     <Link to={`/person/${person.id}`} className="movie-card">

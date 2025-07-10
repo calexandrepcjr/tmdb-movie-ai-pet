@@ -1,21 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-
-interface TvShow {
-  id: number;
-  name: string;
-  overview: string;
-  posterPath: string;
-  backdropPath: string;
-  firstAirDate: string;
-  voteAverage: number;
-  voteCount: number;
-  popularity: number;
-  adult: boolean;
-  originalLanguage: string;
-  originalName: string;
-  genreIds: number[];
-}
+import { TvShow } from '../../../domain/entities/tvShow';
 
 interface TvShowCardProps {
   tvShow: TvShow;
@@ -24,9 +9,7 @@ interface TvShowCardProps {
 const TvShowCard: React.FC<TvShowCardProps> = ({ tvShow }) => {
   const placeholderUrl = `https://placehold.co/500x750/374151/ffffff?text=${encodeURIComponent(tvShow.name)}`;
   
-  const imageUrl = tvShow.posterPath 
-    ? `https://image.tmdb.org/t/p/w500${tvShow.posterPath}`
-    : placeholderUrl;
+  const imageUrl = tvShow.getPosterUrl() || placeholderUrl;
 
   return (
     <Link to={`/tv/${tvShow.id}`} className="movie-card">
@@ -44,14 +27,14 @@ const TvShowCard: React.FC<TvShowCardProps> = ({ tvShow }) => {
             {tvShow.name}
           </h3>
           <p className="text-gray-400 text-sm mb-2">
-            {tvShow.firstAirDate ? new Date(tvShow.firstAirDate).getFullYear() : 'TBA'}
+            {tvShow.getFirstAirYear()}
           </p>
           <p className="text-gray-300 text-sm line-clamp-3">
             {tvShow.overview}
           </p>
           <div className="mt-3 flex justify-between items-center">
             <span className="text-yellow-400 text-sm">
-              ⭐ {tvShow.voteAverage ? tvShow.voteAverage.toFixed(1) : 'N/A'}
+              ⭐ {tvShow.getFormattedVoteAverage()}
             </span>
             <span className="text-gray-400 text-xs">
               {tvShow.voteCount || 0} votes
