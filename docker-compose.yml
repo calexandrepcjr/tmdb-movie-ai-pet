@@ -1,0 +1,39 @@
+version: '3.9'
+
+services:
+  api:
+    image: node:22-alpine
+    working_dir: /app
+    volumes:
+      - ./:/app
+      # Keep node_modules inside the container to avoid host FS perms issues
+      - /app/node_modules
+    environment:
+      NODE_ENV: development
+      BFF_PORT: "4000"
+      # Ensure this is set in your local .env or export it here
+      TMDB_API_KEY: ${TMDB_API_KEY}
+    command: sh -c "npm ci && npm run build && node dist/presentation/server/server.js"
+    ports:
+      - "4000:4000"
+
+  web:
+    image: node:22-alpine
+    working_dir: /app
+    volumes:
+      - ./:/app
+      # Keep node_modules inside the container to avoid host FS perms issues
+      - /app/node_modules
+    environment:
+      NODE_ENV: development
+      # Tell webpack dev server where to proxy /api
+      BFF_PROXY_TARGET: http://api:4000
+    command: sh -c "npm ci && npm run start:browser"
+    ports:
+      - "3001:3001"
+    depends_on:
+      - api
+
+networks:
+  default:
+    name: tmdb-net
