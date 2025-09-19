@@ -1,10 +1,10 @@
 # AI-Assisted Development Guidelines
 
-This document outlines best practices for AI-assisted development in the TMDB Movie Client project, including effective prompting strategies, code review practices, and integration patterns.
+This document outlines best practices for AI-assisted development in the TMDB Movie Client project, including effective prompting strategies, code review practices, and integration patterns. For the unified agent playbook, see the root-level `AGENTS.md`.
 
 ## 🎯 Overview
 
-AI tools (GitHub Copilot, ChatGPT, Claude, etc.) are valuable development assistants that can enhance productivity while maintaining code quality. These guidelines ensure consistent and effective AI usage across the project.
+ AI tools (GitHub Copilot, ChatGPT, Claude, Codex CLI, etc.) are valuable development assistants that can enhance productivity while maintaining code quality. These guidelines ensure consistent and effective AI usage across the project.
 
 ## 📋 Table of Contents
 
@@ -282,6 +282,7 @@ Create an ADR for this architectural decision:
 - Verify TypeScript types are correct
 - Ensure proper interface usage
 - Check for type safety violations
+- **CRITICAL**: Avoid `any` type at all costs. All code must be strictly typed.
 
 ### 6. **🚨 VIBE CODING VIOLATIONS (CRITICAL)**
 These are serious violations that must be avoided:
@@ -324,6 +325,11 @@ These are serious violations that must be avoided:
 - Excellent for documentation generation
 - Good for code review and refactoring
 
+### Codex CLI
+- Repo-aware agent for surgical, multi-file changes (e.g., DI updates, Docker/infra tweaks, refactors) while respecting DDD + Clean Architecture.
+- Uses short plans and concise preambles; applies patches and runs commands with validation steps (build/tests) before handoff.
+- Best for tasks needing filesystem edits plus quick verification in one flow.
+
 ### AI-Powered Code Review Tools
 - Use for automated code quality checks
 - Supplement human code reviews
@@ -350,4 +356,4 @@ These are serious violations that must be avoided:
 - [Code Review Guidelines](./code-review.md)
 - [Architecture Documentation](../architecture/README.md)
 
-*Last Updated: July 9, 2025*
+*Last Updated: September 19, 2025*

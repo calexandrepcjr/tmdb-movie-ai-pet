@@ -6,7 +6,7 @@
 > This is a **research-focused pet project** designed to explore and validate **aggressive AI-assisted development methodologies**. It serves as a testing ground for advanced AI-driven software engineering practices, architectural decision-making, and code generation workflows.
 > 
 > **🤖 AI Tools Used:**
-> - **Primary**: GitHub Copilot + Claude Sonnet 4 + Gemini
+> - **Primary**: GitHub Copilot + Claude Sonnet 4 + Gemini + Codex CLI
 > - **Purpose**: Research on AI-augmented software engineering
 > - **Methodology**: Structured AI prompting with anti-vibe coding enforcement
 > 
@@ -17,6 +17,8 @@
 > - Evaluate AI prompt engineering for complex software projects
 > 
 > **⚡ Development Approach:** This project employs an **augmented coding strategy** that strictly prohibits "vibe coding" in favor of analysis-driven, architecture-conscious development with AI assistance.
+
+Agent playbook: See `AGENTS.md` for unified, project-specific agent guidelines (merged from GEMINI.md).
 
 ---
 
@@ -253,6 +255,11 @@ src/
     └── interactive/      # Interactive menu
 ```
 
+For a deeper dive into the system and decisions:
+- Architecture overview: `ARCHITECTURE.md`
+- Agent guidelines: `AGENTS.md`
+- ADRs: `docs/adr`
+
 ### Key Design Patterns
 
 1. **Repository Pattern**: Abstracts data access
@@ -262,6 +269,18 @@ src/
 5. **Builder Pattern**: Complex filter construction
 
 ## Development
+
+### AI Agentic Workflow (Codex)
+- Codex CLI has been used alongside Copilot/Claude/Gemini to perform agentic, architecture-aware changes (refactors, infra tweaks, docs updates).
+- Agents follow `AGENTS.md` and `docs/ai/README.md` for Clean Architecture + DDD boundaries, strict typing, and security (no secrets in the browser).
+- Contributions using agents should include a brief plan, validation steps (build/run), and any DI or ADR updates when relevant.
+
+### Containers
+- Compose: run `docker compose up` (or `npm run container:up`).
+- node_modules: we mount `- /app/node_modules` so dependencies live inside the container, avoiding host/WSL EACCES issues on bind mounts.
+- Rebuild: use `docker compose down -v && docker compose up --build` after dependency or Dockerfile changes.
+- Network: services join `tmdb-net`. If it already exists, Docker reuses it and may warn; this is safe.
+- Env: `TMDB_API_KEY` is provided only to the API (BFF) container; the browser talks to the BFF and never receives secrets.
 
 ### Scripts
 - `npm run build`: Build the project
